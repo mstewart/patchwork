@@ -29,6 +29,15 @@ class UserCommandsMockTestCase(TestCase):
         with self.assertRaises(RuntimeError):
             user.get_homedir('someuser')
 
+    @mock.patch('patchwork.user.sudo')
+    def test_add_to_group(self, sudo):
+        user.add_to_group('myuser', 'mygroup')
+        sudo.assert_called_once_with('usermod -G "mygroup" --append "myuser"')
+
+    @mock.patch('patchwork.user.sudo')
+    def test_user_create(self, sudo):
+        user.create('myuser', system=True, home='/tmp')
+        sudo.assert_called_once_with('useradd -M --home "/tmp" --system --user-group myuser')
 
 class UserLocalCommandsTestCase(TestCase):
     """Running non-invasive commands locally"""
