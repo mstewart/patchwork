@@ -26,13 +26,6 @@ def create(name, home=None, shell=None, gid=None, groups=None, system=False):
         user group gid) is assigned from the system account range instead
         of the user one.
     """
-    # Why not create homedirs by default, or allow useradd to decide?
-    # 1) to reduce dependencies on default behaviours,
-    # which can vary from system to system based on /etc/login.defs, and
-    # 2) increase consistency between system and non-system accounts.
-    # We're aiming for predictability and repeatability over user-friendliness.
-    # Clients can create homedirs themselves easily enough if they need them.
-
     options = []
     if home:
         options.append('--home "%s"' % home)
@@ -52,9 +45,7 @@ def create(name, home=None, shell=None, gid=None, groups=None, system=False):
 
     options = " ".join(options)
 
-    # -M to avoid creating home directories.
-    #
-    sudo('useradd -M %(options)s %(name)s' % locals())
+    sudo('useradd %(options)s %(name)s' % locals())
 
 def get_homedir(user):
     """

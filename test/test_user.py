@@ -1,10 +1,8 @@
 from patchwork import user
 import fabric
-
 import os, pwd
 
 from unittest import TestCase
-
 import mock
 
 def local_run(*args, **kwargs):
@@ -37,7 +35,7 @@ class UserCommandsMockTestCase(TestCase):
     @mock.patch('patchwork.user.sudo')
     def test_user_create(self, sudo):
         user.create('myuser', system=True, home='/tmp')
-        sudo.assert_called_once_with('useradd -M --home "/tmp" --system --user-group myuser')
+        sudo.assert_called_once_with('useradd --home "/tmp" --system --user-group myuser')
 
 class UserLocalCommandsTestCase(TestCase):
     """Running non-invasive commands locally"""
