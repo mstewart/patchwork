@@ -1,7 +1,7 @@
 from fabric.api import sudo
 from patchwork.info import distro_family
 
-import rpm
+import rpm, deb
 
 def _implementor():
     """
@@ -19,23 +19,29 @@ def _implementor():
         raise NotImplementedError('System type detected as "' + family +
                 '"; package management not implemented for this type.')
 
+
+def is_installed(*packages):
+    """
+    Check whether ``packages`` are all installed on the system.
+    """
+    _implementor().is_installed(*packages)
+
+
 def install(*packages, **kwargs):
+    """
+    Ensure all ``packages`` are installed with the system package manager.
+    Idempotent operation.
+    """
     _implementor().install(*packages, **kwargs)
+
 
 def package(*packages):
     """
-    Installs one or more ``packages`` using the system package manager.
+    Ensure all ``packages`` are installed with the system package manager.
 
-    Specifically, this function calls a package manager like ``apt-get`` or
-    ``yum`` once per package given.
+    Alias for ``install``.
     """
-    # Try to suppress interactive prompts, assume 'yes' to all questions
-    apt = "DEBIAN_FRONTEND=noninteractive apt-get install -y %s"
-    # Run from cache vs updating package lists every time; assume 'yes'.
-    yum = "yum install -y %s"
-    manager = apt if distro_family() == "debian" else yum
-    for package in packages:
-        sudo(manager % package)
+    install(*packages)
 
 
 def rubygem(gem):

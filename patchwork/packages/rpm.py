@@ -1,13 +1,10 @@
-"""
-Fabric utilities for managing Redhat-style RPM packages.
-"""
-
 from fabric.api import run, sudo, settings, hide
 from errors import PackageInstallationError
 
 def is_installed(*packages):
     """
-    Checks whether ``packages`` are all installed on the system.
+    Check whether ``packages`` are all installed on the system
+    using ``rpm``.
     """
     if not packages:
         return True
@@ -17,7 +14,7 @@ def is_installed(*packages):
 
 def install(*packages, **kwargs):
     """
-    Takes an iterable of strings; ensure all packages with these names are installed.
+    Ensure all ``packages`` are installed using ``yum``.
     Idempotent operation.
 
     Set ``use_epel=True`` if yum should use the pseudo-standard EPEL repos.
@@ -29,6 +26,8 @@ def install(*packages, **kwargs):
     * http://tickets.opscode.com/browse/CHEF-2062
     So a followup query check is unfortunately necessary for portability.
     """
+    if not packages:
+        return
     use_epel = kwargs.get('use_epel', False)
     epel_option = "--enablerepo=epel " if use_epel else ""
     package_list = " ".join(packages)
