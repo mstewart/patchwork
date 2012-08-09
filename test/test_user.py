@@ -33,21 +33,18 @@ class UserCommandsMockTestCase(TestCase):
 class UserLocalCommandsTestCase(TestCase):
     """Running non-invasive commands locally"""
 
-    @mock.patch('patchwork.user.run')
-    def test_user_exists_local(self, run):
-        run.side_effect = local_run
+    @mock.patch('patchwork.user.run', local_run)
+    def test_user_exists_local(self):
         current_user = pwd.getpwuid(os.getuid()).pw_name
         self.assertTrue(user.exists(current_user))
 
-    @mock.patch('patchwork.user.run')
-    def test_user_does_not_exist_local(self, run):
-        run.side_effect = local_run
+    @mock.patch('patchwork.user.run', local_run)
+    def test_user_does_not_exist_local(self):
         illegal_user_name = 'z::f' # colons are disallowed in usernames
         self.assertFalse(user.exists(illegal_user_name))
 
-    @mock.patch('patchwork.user.run')
-    def test_homedir_local(self, run):
-        run.side_effect = local_run
+    @mock.patch('patchwork.user.run', local_run)
+    def test_homedir_local(self):
         current_pw = pwd.getpwuid(os.getuid())
         self.assertEqual(current_pw.pw_dir, user.get_homedir(current_pw.pw_name))
 
