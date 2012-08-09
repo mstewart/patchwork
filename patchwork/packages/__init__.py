@@ -10,7 +10,8 @@ def _implementor():
     (e.g. the ``rpm`` module for redhat, ``deb`` module for debian).
     """
     mappings = {
-            'redhat': rpm
+            'redhat': rpm,
+            'debian': deb
             }
     family = distro_family()
     try:
