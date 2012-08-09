@@ -2,7 +2,7 @@ from fabric.api import *
 
 def exists(name):
     """
-    Check if user exists
+    Check if a user with this name exists.
     """
     with settings(hide('stdout', 'warnings'), warn_only=True):
         return run('getent passwd %(name)s' % locals()).succeeded
@@ -58,10 +58,15 @@ def create(name, home=None, shell=None, gid=None, groups=None, system=False):
 
 def get_homedir(user):
     """
+    Return the home directory path for a user.
+    Raises an error if the user doesn't exist.
+
     Use python on the remote end to avoid reinventing the wheel by
     having yet another passwd entry parser.
     """
-    return run("python -c 'import pwd; print(pwd.getpwnam(%s).pw_dir)'").stdout
+    if not exists(user):
+        raise RuntimeError('get_homedir: User %s does not exist' % user)
+    return run("""python -c 'import pwd; print(pwd.getpwnam("%s").pw_dir)'""" % user).stdout
 
 def add_to_group(username, groupname):
     """
