@@ -1,6 +1,26 @@
 from fabric.api import sudo
 from patchwork.info import distro_family
 
+import rpm
+
+def _implementor():
+    """
+    Return the module implementing package management operations for the
+    current distro.
+    (e.g. the ``rpm`` module for redhat, ``deb`` module for debian).
+    """
+    mappings = {
+            'redhat': rpm
+            }
+    family = distro_family()
+    try:
+        return mappings[family]
+    except KeyError:
+        raise NotImplementedError('System type detected as "' + family +
+                '"; package management not implemented for this type.')
+
+def install(*packages, **kwargs):
+    _implementor().install(*packages, **kwargs)
 
 def package(*packages):
     """
