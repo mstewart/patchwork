@@ -2,7 +2,7 @@
 Fabric utilities for managing Redhat-style RPM packages.
 """
 
-from fabric.api import run, settings, hide
+from fabric.api import run, sudo, settings, hide
 from errors import PackageInstallationError
 
 def is_installed(*packages):
