@@ -2,26 +2,34 @@ import re
 
 from fabric.api import run, settings, hide, run
 
-
-def directory(d, user=None, group=None, mode=None, runner=run):
-    """
-    Ensure a directory exists and has given user and/or mode
-    """
-    runner("mkdir -p %s" % d)
-    if user is not None:
-        group = group or user
-        runner("chown %s:%s %s" % (user, group, d))
-    if mode is not None:
-        runner("chmod %s %s" % (mode, d))
+def _test_path(path, flags, runner=run):
+    """Private wrapper for shell ``test``"""
+    cmd = 'test %s "$(echo %s)"' % (flags, path)
+    with settings(hide('everything'), warn_only=True):
+        return runner(cmd).succeeded
 
 
 def exists(path, runner=run):
     """
     Return True if given path exists on the current remote host.
     """
-    cmd = 'test -e "$(echo %s)"' % path
-    with settings(hide('everything'), warn_only=True):
-        return runner(cmd).succeeded
+    return _test_path(path, '-e', runner=runner)
+
+
+def is_directory(path, runner=run):
+    """
+    Return True if the given ``path`` corresponds to a directory,
+    or a symlink to one.
+    """
+    return _test_path(path, '-d', runner=runner)
+
+
+def is_file(path, runner=run):
+    """
+    Return True if the given ``path`` corresponds to a regular file,
+    or a symlink to one.
+    """
+    return _test_path(path, '-f', runner=runner)
 
 
 def contains(filename, text, exact=False, escape=True, runner=run):
