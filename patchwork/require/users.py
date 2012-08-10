@@ -1,8 +1,8 @@
 from fabric.api import sudo, run
 from fabric.contrib.files import exists
-from ..user import *
 
-import . as require
+from ..users import *
+from files import directory
 
 def user(name, home=None, groups=None):
     """
@@ -27,7 +27,8 @@ def user(name, home=None, groups=None):
         if not observed_home == home:
             raise RuntimeError("User %s already exists with homedir %s (expected %s)" %
                     (name, observed_home, home))
-        require.directory(home, owner=name, runner=sudo)
+    if home:
+        directory(home, owner=name, runner=sudo)
     if groups:
         for group in groups:
             add_to_group(name, group)
