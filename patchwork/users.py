@@ -59,8 +59,8 @@ def get_homedir(user):
         raise RuntimeError('get_homedir: User %s does not exist' % user)
     return run("""python -c 'import pwd; print(pwd.getpwnam("%s").pw_dir)'""" % user).stdout
 
-def add_to_group(username, groupname):
+def add_to_group(user, group):
     """
     Add a user to a group.  Idempotent operation.
     """
-    sudo('usermod -G "%s" --append "%s"' % (groupname, username))
+    sudo('usermod -G "%s" --append "%s"' % (group, user))
