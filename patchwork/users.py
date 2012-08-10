@@ -1,5 +1,13 @@
 from fabric.api import *
 
+class UserCreationError(Exception):
+    def __init__(self, msg):
+        super(UserCreationError, self).__init__(msg)
+
+class UserDoesNotExistError(Exception):
+    def __init__(self, msg):
+        super(UserDoesNotExistError, self).__init__(msg)
+
 def exists(name):
     """
     Check if a user with this name exists.
@@ -56,7 +64,7 @@ def get_homedir(user):
     having yet another passwd entry parser.
     """
     if not exists(user):
-        raise RuntimeError('get_homedir: User %s does not exist' % user)
+        raise UserDoesNotExistError('get_homedir: User %s does not exist' % user)
     return run("""python -c 'import pwd; print(pwd.getpwnam("%s").pw_dir)'""" % user).stdout
 
 def add_to_group(user, group):

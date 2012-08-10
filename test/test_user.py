@@ -24,7 +24,7 @@ class UserCommandsMockTestCase(TestCase):
     @patch('patchwork.users.run')
     def test_homedir_nonexistent_user(self, run, exists):
         exists.return_value = False
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(users.UserDoesNotExistError):
             users.get_homedir('someuser')
 
     @patch('patchwork.users.sudo')

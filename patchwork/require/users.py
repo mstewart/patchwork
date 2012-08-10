@@ -26,7 +26,7 @@ def user(name, home=None, groups=None):
     elif home:
         observed_home = get_homedir(name)
         if not normpath(observed_home) == normpath(home):
-            raise RuntimeError("User %s already exists with homedir %s (expected %s)" %
+            raise UserCreationError("User %s already exists with homedir %s (expected %s)" %
                     (name, observed_home, home))
     if home:
         directory(home, owner=name, runner=sudo)

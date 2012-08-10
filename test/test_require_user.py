@@ -1,3 +1,4 @@
+import patchwork
 from patchwork import require
 import fabric
 
@@ -39,7 +40,7 @@ class UserCommandsMockTestCase(TestCase):
         exists.return_value = True
         get_homedir.return_value = '/home/someotherdir'
 
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(patchwork.users.UserCreationError):
             require.user(name, home=home)
         self.assertTrue(create.is_called)
 
