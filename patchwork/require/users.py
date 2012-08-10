@@ -3,6 +3,7 @@ from fabric.contrib.files import exists
 
 from ..users import *
 from files import directory
+from os.path import normpath
 
 def user(name, home=None, groups=None):
     """
@@ -24,7 +25,7 @@ def user(name, home=None, groups=None):
         create(name, home=home)
     elif home:
         observed_home = get_homedir(name)
-        if not observed_home == home:
+        if not normpath(observed_home) == normpath(home):
             raise RuntimeError("User %s already exists with homedir %s (expected %s)" %
                     (name, observed_home, home))
     if home:
