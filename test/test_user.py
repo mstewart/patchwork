@@ -37,20 +37,17 @@ class UserCommandsMockTestCase(TestCase):
         users.create('myuser', system=True, home='/tmp')
         sudo.assert_called_once_with('useradd --home "/tmp" --system --user-group myuser')
 
+@mock.patch('patchwork.users.run', local_run)
 class UserLocalCommandsTestCase(TestCase):
     """Running non-invasive commands locally"""
-
-    @mock.patch('patchwork.users.run', local_run)
     def test_user_exists_local(self):
         current_user = pwd.getpwuid(os.getuid()).pw_name
         self.assertTrue(users.exists(current_user))
 
-    @mock.patch('patchwork.users.run', local_run)
     def test_user_does_not_exist_local(self):
         illegal_user_name = 'z::f' # colons are disallowed in usernames
         self.assertFalse(users.exists(illegal_user_name))
 
-    @mock.patch('patchwork.users.run', local_run)
     def test_homedir_local(self):
         current_pw = pwd.getpwuid(os.getuid())
         self.assertEqual(current_pw.pw_dir, users.get_homedir(current_pw.pw_name))
