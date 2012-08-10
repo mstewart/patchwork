@@ -2,13 +2,13 @@ from patchwork import require
 import fabric
 
 from unittest import TestCase
-import mock
+from mock import patch
 
-@mock.patch('patchwork.require.users.create')
-@mock.patch('patchwork.require.users.get_homedir')
-@mock.patch('patchwork.require.users.add_to_group')
-@mock.patch('patchwork.require.users.exists')
-@mock.patch('patchwork.require.users.directory')
+@patch('patchwork.require.users.create')
+@patch('patchwork.require.users.get_homedir')
+@patch('patchwork.require.users.add_to_group')
+@patch('patchwork.require.users.exists')
+@patch('patchwork.require.users.directory')
 class UserCommandsMockTestCase(TestCase):
     def test_require_new_user(self, directory, exists, add_to_group, get_homedir, create):
         name, home = 'myuser', '/myhome'
