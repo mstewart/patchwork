@@ -31,7 +31,9 @@ def install(*packages, **kwargs):
     use_epel = kwargs.get('use_epel', False)
     epel_option = "--enablerepo=epel " if use_epel else ""
     package_list = " ".join(packages)
-    sudo("yum install --assumeyes %(epel_option)s %(package_list)s" % locals())
+    with settings(hide('warnings'), warn_only=True):
+        if sudo("yum install --assumeyes --quiet %(epel_option)s %(package_list)s" % locals()).failed:
+            raise PackageInstallationError('yum failed to install packages: %s' % package_list)
     if not is_installed(*packages):
         raise PackageInstallationError("yum reported success in installing " +
                 "the following packages, but they are not all present: " +

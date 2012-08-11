@@ -1,7 +1,8 @@
 from fabric.api import run, sudo, settings, hide, env
 from fabric.context_managers import prefix
 
-import files, users, info, require
+import files, users, info, require, packages
+from packages.errors import PackageInstallationError
 
 # Not actually dependencies for rvm itself, but dependencies of the ruby
 # interpreter which rvm needs to build.
@@ -11,11 +12,15 @@ RVM_DEB_DEPENDENCIES=[] # Find out what these are
 DEFAULT_RUBY_VERSION='1.9.2'
 
 def _install_ruby_system_dependencies():
-    if info.system_family() == 'redhat':
-        package.rpm.install(RVM_RPM_DEPENDENCIES)
-        with settings(hide('warnings'), warn_only=True):
-            # iconv-devel is only packaged separately on some systems
-            package.rpm.install('iconv-devel')
+    if info.distro_family() == 'redhat':
+        packages.rpm.install(*RVM_RPM_DEPENDENCIES)
+        try:
+            # iconv-devel does not exist on some systems, but its contents
+            # are usually lumped in with other packages, so this is not
+            # generally an error.
+            packages.rpm.install('iconv-devel')
+        except PackageInstallationError:
+            pass
 
 def system_installation(rvm_users=None):
     """
@@ -59,3 +64,16 @@ def gemset(gemsetname, ruby_version=DEFAULT_RUBY_VERSION):
     if ruby_version != 'system':
         interpreter(ruby_version)
     return prefix('rvm use %(ruby_version)s@%(gemsetname)s --create' % locals())
+
+#def install_gems_from_gemfile(gemfile_path):
+    #"""
+    #Install the dependencies of a Ruby app, which has its dependencies
+    #specified in a Gemfile or Gemfile.lock.
+    #``gemfile_path`` should be the path to the Gemfile or Gemfile.lock.
+
+    #(Using a Gemfile.lock is advised: this is an exact dependency closure,
+    #whereas a Gemfile will get you slightly different gem versions on each
+    #install, in general.)
+    #"""
+    #with cd(os.path.dirname(gemfile_path)):
+        #pass
