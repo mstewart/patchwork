@@ -1,5 +1,6 @@
 from fabric.api import sudo
 from patchwork.info import distro_family
+from errors import UnsupportedDistributionError
 
 import rpm, deb
 
@@ -17,7 +18,7 @@ def _implementor():
     try:
         return mappings[family]
     except KeyError:
-        raise NotImplementedError('System type detected as "' + family +
+        raise UnsupportedDistributionError('System type detected as "' + family +
                 '"; package management not implemented for this type.')
 
 
@@ -44,6 +45,23 @@ def package(*packages):
     """
     install(*packages)
 
+
+def multi_distro_install(distro_to_package_map):
+    """
+    Utility function for installing different packages, depending on the
+    distro we're on.
+
+    This will install the list of packages
+        ``distro_to_package_map[distro_family()]``
+    or else raise an UnsupportedDistributionError if there are no packages
+    mapped to that distro family.
+    """
+    distro_family = info.get_distro_family()
+    try:
+        packages.install(distro_to_package_map[info.get_distro_family()])
+    except KeyError:
+        raise packages.UnsupportedDistributionError("Operation not supported" +
+                " for distro family %s" % distro_family)
 
 def rubygem(gem):
     """
