@@ -56,12 +56,12 @@ def multi_distro_install(distro_to_package_map):
     or else raise an UnsupportedDistributionError if there are no packages
     mapped to that distro family.
     """
-    distro_family = info.get_distro_family()
+    d = distro_family()
     try:
-        packages.install(distro_to_package_map[info.get_distro_family()])
+        install(*distro_to_package_map[d])
     except KeyError:
-        raise packages.UnsupportedDistributionError("Operation not supported" +
-                " for distro family %s" % distro_family)
+        raise UnsupportedDistributionError("Operation not supported" +
+                " for distro family '%s'" % d)
 
 def rubygem(gem):
     """
