@@ -1,4 +1,5 @@
 from fabric.api import sudo
+from fabric.context_managers import settings
 
 from patchwork import packages
 import mysql
@@ -46,10 +47,9 @@ def server(mysql_root_password=None, *args, **kwargs):
         logging.error(msg)
         raise mysql.MysqlAuthenticationError(msg)
 
-    # Initial state on package install: no root password, anonymous accounts,
-    # and test databases.
-    # Remove all users other than 'root'@'localhost' to start with:
-    mysql.query("delete from mysql.user where User <> 'root' or Host <> 'localhost';",
-            mysql_password=mysql_root_password)
-    # Drop the "test" DB:
-    sudo("mysqladmin -u root drop test")
+    # Standard hygiene: cleanup anonymous users, remote root access,
+    # and test database.
+    with settings(mysql_user='root', mysql_password=mysql_root_password):
+        mysql.query("delete from mysql.user where User = '';")
+        mysql.query("delete from mysql.user where User = 'root' and Host <> 'localhost';")
+        mysql.query("drop database if exists test;")

@@ -96,7 +96,7 @@ def database(db_name, mysql_user=None, mysql_password=None):
         with database('development'):
             query('delete from user_login where user_id = 0;')
     """
-    query("""create database %(db_name)s if not exists;""" % locals(),
+    query("""create database if not exists %(db_name)s""" % locals(),
             mysql_user=mysql_user,
             mysql_password=mysql_password)
     return settings(mysql_database=db_name)
