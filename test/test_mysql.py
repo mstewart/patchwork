@@ -24,3 +24,11 @@ class QueryTest(TestCase):
     def test_query(self, run):
         mysql.query('SELECT 1;')
         run.assert_called_once_with("""mysql --raw --batch --execute 'SELECT 1;' --user=root""")
+
+class AdminFunctionsTest(TestCase):
+    @patch('patchwork.mysql.mysql.query')
+    def test_remove_user(self, query):
+        mysql.remove_user('user1', 'localhost')
+        query.assert_called_once_with("delete from mysql.user where User = user1 and Host = localhost;",
+                mysql_user='root',
+                mysql_password=None)
