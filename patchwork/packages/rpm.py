@@ -1,18 +1,20 @@
 from fabric.api import run, sudo, settings, hide
 from errors import PackageInstallationError
 
-def is_installed(*packages):
+def is_installed(packages):
     """
     Check whether ``packages`` are all installed on the system
     using ``rpm``.
     """
     if not packages:
         return True
+    if isinstance(packages, basestring):
+        packages = [packages]
     with settings(hide('stdout', 'stderr', 'warnings'), warn_only=True):
         return run("rpm --query --quiet %s" % " ".join(packages)).succeeded
 
 
-def install(*packages, **kwargs):
+def install(packages, use_epel=False, **kwargs):
     """
     Ensure all ``packages`` are installed using ``yum``.
     Idempotent operation.
@@ -28,7 +30,8 @@ def install(*packages, **kwargs):
     """
     if not packages:
         return
-    use_epel = kwargs.get('use_epel', False)
+    if isinstance(packages, basestring):
+        packages = [packages]
     epel_option = "--enablerepo=epel " if use_epel else ""
     package_list = " ".join(packages)
     with settings(hide('warnings'), warn_only=True):

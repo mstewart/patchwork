@@ -25,25 +25,6 @@ class PackageDelegationTest(TestCase):
         with self.assertRaises(NotImplementedError):
             packages.install('mypkg')
 
-class MultiDistroInstallationTest(TestCase):
-    @patch('patchwork.packages.distro_family')
-    @patch('patchwork.packages.install')
-    def test_package_mapping(self, install, distro_family):
-        pkgs = { 'debian': ['deb1', 'deb2'],
-                'redhat': ['rpm1', 'rpm2'] }
-        distro_family.return_value = 'debian'
-        packages.multi_distro_install(pkgs)
-        install.assert_called_once_with(*pkgs['debian'])
-        
-    @patch('patchwork.packages.distro_family')
-    @patch('patchwork.packages.install')
-    def test_no_packages_mapped(self, install, distro_family):
-        pkgs = { 'debian': ['deb1', 'deb2'],
-                'redhat': ['rpm1', 'rpm2'] }
-        distro_family.return_value = 'arch'
-        with self.assertRaises(UnsupportedDistributionError):
-            packages.multi_distro_install(pkgs)
-        self.assertFalse(install.called)
 
 class PackageQueryTest(TestCase):
     @patch('patchwork.packages.rpm.sudo')
@@ -57,7 +38,7 @@ class PackageQueryTest(TestCase):
 
     @patch('patchwork.packages.rpm.run')
     def test_redhat_multiple_query(self, run):
-        packages.rpm.is_installed('mypkg1', 'mypkg2')
+        packages.rpm.is_installed(['mypkg1', 'mypkg2'])
         run.assert_called_once_with('rpm --query --quiet mypkg1 mypkg2')
 
     @patch('patchwork.packages.deb.sudo')
@@ -71,5 +52,5 @@ class PackageQueryTest(TestCase):
 
     @patch('patchwork.packages.deb.run')
     def test_debian_multiple_query(self, run):
-        packages.deb.is_installed('mypkg1', 'mypkg2')
+        packages.deb.is_installed(['mypkg1', 'mypkg2'])
         run.assert_called_once_with('dpkg-query --show mypkg1 mypkg2')

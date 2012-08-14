@@ -22,46 +22,30 @@ def _implementor():
                 '"; package management not implemented for this type.')
 
 
-def is_installed(*packages):
+def is_installed(packages):
     """
     Check whether ``packages`` are all installed on the system.
     """
-    _implementor().is_installed(*packages)
+    _implementor().is_installed(packages)
 
 
-def install(*packages, **kwargs):
+def install(packages, **kwargs):
     """
     Ensure all ``packages`` are installed with the system package manager.
     Idempotent operation.
     """
-    _implementor().install(*packages, **kwargs)
+    _implementor().install(packages, **kwargs)
 
 
 def package(*packages):
     """
     Ensure all ``packages`` are installed with the system package manager.
 
-    Alias for ``install``.
+    Alias for ``install``, except that it takes a variable number of arguments,
+    each of which is a package to install, instead of a list of packages.
     """
-    install(*packages)
+    install(packages)
 
-
-def multi_distro_install(distro_to_package_map):
-    """
-    Utility function for installing different packages, depending on the
-    distro we're on.
-
-    This will install the list of packages
-        ``distro_to_package_map[distro_family()]``
-    or else raise an UnsupportedDistributionError if there are no packages
-    mapped to that distro family.
-    """
-    d = distro_family()
-    try:
-        install(*distro_to_package_map[d])
-    except KeyError:
-        raise UnsupportedDistributionError("Operation not supported" +
-                " for distro family '%s'" % d)
 
 def rubygem(gem):
     """
