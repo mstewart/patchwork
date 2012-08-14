@@ -18,3 +18,9 @@ class MysqlInstallationTest(TestCase):
         distro_family.return_value = 'debian'
         mysql.server()
         deb.install.assert_called_once_with(['mysql-server'])
+
+class QueryTest(TestCase):
+    @patch('patchwork.mysql.mysql.run')
+    def test_query(self, run):
+        mysql.query('SELECT 1;')
+        run.assert_called_once_with("""mysql --raw --batch --execute 'SELECT 1;' --user=root""")
