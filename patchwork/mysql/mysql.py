@@ -2,6 +2,12 @@ from fabric.api import *
 
 import redhat, debian
 from patchwork.info import distro_family
+from ..errors import AuthenticationError
+
+
+class MysqlAuthenticationError(AuthenticationError):
+    def __init__(self, msg):
+        super(MysqlAuthenticationError, self).__init__(msg)
 
 
 def _implementor():
@@ -42,6 +48,7 @@ def query(statement, mysql_user='root', mysql_password=None, mysql_database=None
     TODO: Put the password into a temporary mysql config file, instead of
     insecurely into the command line.
     TODO: Add support for fabric env entries for configuration.
+    TODO: Add support for alternative local sockets for connection.
     """
     flags = ['--user=%s' % mysql_user]
     if mysql_database:
@@ -51,9 +58,16 @@ def query(statement, mysql_user='root', mysql_password=None, mysql_database=None
     flag_string = " ".join(flags)
     mysql_shell = """mysql --raw --batch %(flag_string)s --execute """ % locals()
     with settings(shell=mysql_shell):
-        run(statement)
+        return run(statement)
+
 
 def remove_user(mysql_user_name, mysql_user_host, mysql_runas_user='root', mysql_password=None):
     query("""delete from mysql.user where User = '%(mysql_user_name)s' and Host = '%(mysql_user_host)s';""" % locals(),
             mysql_user=mysql_runas_user,
             mysql_password=mysql_password)
+
+
+def can_login(mysql_user='root', mysql_password=None):
+    with settings(hide('everything'), warn_only=True):
+        return query('', mysql_user=mysql_user, mysql_password=mysql_password).succeeded
+
