@@ -49,9 +49,11 @@ def query(statement, mysql_user='root', mysql_password=None, mysql_database=None
     if mysql_password:
         flags.append('--password=%s' % mysql_password)
     flag_string = " ".join(flags)
-    run("""mysql --raw --batch --execute '%(statement)s' %(flag_string)s""" % locals())
+    mysql_shell = """mysql --raw --batch %(flag_string)s --execute """ % locals()
+    with settings(shell=mysql_shell):
+        run(statement)
 
 def remove_user(mysql_user_name, mysql_user_host, mysql_runas_user='root', mysql_password=None):
-    query("""delete from mysql.user where User = %(mysql_user_name)s and Host = %(mysql_user_host)s;""" % locals(),
+    query("""delete from mysql.user where User = '%(mysql_user_name)s' and Host = '%(mysql_user_host)s';""" % locals(),
             mysql_user=mysql_runas_user,
             mysql_password=mysql_password)

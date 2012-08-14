@@ -1,3 +1,5 @@
+import fabric
+from fabric.context_managers import settings
 from patchwork import packages, mysql
 
 from unittest import TestCase
@@ -22,13 +24,15 @@ class MysqlInstallationTest(TestCase):
 class QueryTest(TestCase):
     @patch('patchwork.mysql.mysql.run')
     def test_query(self, run):
+        prev_shell = fabric.api.env.shell
         mysql.query('SELECT 1;')
-        run.assert_called_once_with("""mysql --raw --batch --execute 'SELECT 1;' --user=root""")
+        run.assert_called_once_with("SELECT 1;")
+        self.assertIn('bash', fabric.api.env.shell)
+        self.assertEqual(prev_shell, fabric.api.env.shell)
 
-class AdminFunctionsTest(TestCase):
     @patch('patchwork.mysql.mysql.query')
     def test_remove_user(self, query):
         mysql.remove_user('user1', 'localhost')
-        query.assert_called_once_with("delete from mysql.user where User = user1 and Host = localhost;",
+        query.assert_called_once_with("delete from mysql.user where User = 'user1' and Host = 'localhost';",
                 mysql_user='root',
                 mysql_password=None)
