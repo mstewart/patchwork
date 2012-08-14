@@ -55,6 +55,8 @@ def distro_name():
     * ``ubuntu``
     * ``debian``
     * ``other``
+
+    TODO: Cache this value per-host in fabric.api.env.
     """
     lsb_info = lsb_release()
     if lsb_info:
@@ -105,6 +107,8 @@ def distro_family():
     If the system falls outside these categories, its discovered distro_name
     will be returned instead (possibly ``other`` if its type couldn't be
     determined).
+
+    TODO: Cache this value per-host in fabric.api.env.
     """
     families = {
         'debian': "debian ubuntu".split(),
