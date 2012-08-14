@@ -38,6 +38,7 @@ def server(*args, **kwargs):
 def query(statement, mysql_user='root', mysql_password=None, mysql_database=None):
     """
     Execute a SQL query against a mysql server running on the host.
+    Non-idempotent in general (since it allows arbitrary queries).
 
         ``mysql_user``: The mysql user to run the query as.
         The query will be executed locally, so the account
@@ -62,12 +63,19 @@ def query(statement, mysql_user='root', mysql_password=None, mysql_database=None
 
 
 def remove_user(mysql_user_name, mysql_user_host, mysql_runas_user='root', mysql_password=None):
+    """
+    Ensure the given user account is not present.
+    Note that mysql user accounts are always a (username,host) pair.
+    """
     query("""delete from mysql.user where User = '%(mysql_user_name)s' and Host = '%(mysql_user_host)s';""" % locals(),
             mysql_user=mysql_runas_user,
             mysql_password=mysql_password)
 
 
 def can_login(mysql_user='root', mysql_password=None):
+    """
+    Check if the named mysql user can log in.
+    """
     with settings(hide('everything'), warn_only=True):
         return query('', mysql_user=mysql_user, mysql_password=mysql_password).succeeded
 
