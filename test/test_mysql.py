@@ -51,6 +51,6 @@ class AdminTest(TestCase):
     def test_remove_user(self, query):
         mysql.remove_user('user1', 'localhost')
         query.assert_called_once_with("delete from mysql.user where User = 'user1' and Host = 'localhost';",
-                mysql_user='root',
+                mysql_user=None,
                 mysql_password=None)
 
