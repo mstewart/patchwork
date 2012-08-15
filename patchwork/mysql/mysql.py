@@ -65,9 +65,9 @@ def query(statement, mysql_user=None, mysql_password=None, mysql_database=None):
     if mysql_password:
         flags.append('--password=%s' % mysql_password)
 
-    mysql_shell = """mysql --raw --batch %s --execute """ % " ".join(flags)
-    with settings(shell=mysql_shell):
-        return run(statement)
+    mysql_shell = """mysql --skip-column-names --raw --batch %s --execute """ % " ".join(flags)
+    with settings(hide('stdout'), shell=mysql_shell):
+        return run(statement, pty=False, combine_stderr=False)
 
 
 def remove_user(mysql_user_name, mysql_user_host, mysql_runas_user=None, mysql_password=None):
@@ -100,3 +100,11 @@ def database(db_name, mysql_user=None, mysql_password=None):
             mysql_user=mysql_user,
             mysql_password=mysql_password)
     return settings(mysql_database=db_name)
+
+
+def user_exists(user, host='localhost'):
+    result = query("""select 1 from mysql.user where User='%(user)s' and Host='%(host)s'""" % locals())
+    return bool(result.stdout.strip())
+
+#def user(username, password, host='localhost', mysql_root_password=None):
+    #query("""create user 
