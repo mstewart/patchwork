@@ -1,13 +1,9 @@
 from fabric.api import *
+import logging
 
 import redhat, debian
 from patchwork.info import distro_family
-from ..errors import AuthenticationError
-
-
-class MysqlAuthenticationError(AuthenticationError):
-    def __init__(self, msg):
-        super(MysqlAuthenticationError, self).__init__(msg)
+from errors import *
 
 
 def _implementor():
@@ -66,7 +62,7 @@ def query(statement, mysql_user=None, mysql_password=None, mysql_database=None):
         flags.append('--password=%s' % mysql_password)
 
     mysql_shell = """mysql --skip-column-names --raw --batch %s --execute """ % " ".join(flags)
-    with settings(hide('stdout'), shell=mysql_shell):
+    with settings(hide('stdout'), warn_only=False, shell=mysql_shell):
         return run(statement, pty=False, combine_stderr=False)
 
 
@@ -106,5 +102,27 @@ def user_exists(user, host='localhost'):
     result = query("""select 1 from mysql.user where User='%(user)s' and Host='%(host)s'""" % locals())
     return bool(result.stdout.strip())
 
-#def user(username, password, host='localhost', mysql_root_password=None):
-    #query("""create user 
+
+def user(user, password, host='localhost'):
+    """
+    Ensure a mysql user account exists, with the specified password.
+
+    TODO: Add support for specifying password hashes instead of plaintext.
+    """
+    if user_exists(user, host):
+        if can_login(user, password):
+            logging.debug('Mysql user %s already exists with desired password.' % user)
+        else:
+            logging.debug('Mysql user %s already exists with undesired password. Updating.' % user)
+            query("""set password for '%(user)s'@'%(host)s' = PASSWORD('%(password)s');""" % locals())
+    else:
+        logging.debug('Mysql user %s does not yet exist. Creating.')
+        query("""create user '%(user)s'@'%(host)s' identified by '%(password)s';""" % locals())
+
+
+def grant(user, database, host='localhost', permission='ALL', table='*'):
+    """
+    Grant a user access to a database.
+    """
+    query("""grant %(permission)s on %(database)s.%(table)s to '%(user)s'@'%(host)s';"""
+            % locals())
