@@ -41,8 +41,13 @@ class QueryTest(TestCase):
     @patch('patchwork.mysql.mysql.run')
     def test_query(self, run):
         prev_shell = fabric.api.env.shell
-        mysql.query('SELECT 1;')
-        run.assert_called_once_with("SELECT 1;")
+        cmd_string = 'SELECT 1;'
+
+        mysql.query(cmd_string)
+
+        run.assert_called_once()
+        args, kwargs = run.call_args
+        self.assertEqual((cmd_string,), args)
         self.assertIn('bash', fabric.api.env.shell)
         self.assertEqual(prev_shell, fabric.api.env.shell)
 
