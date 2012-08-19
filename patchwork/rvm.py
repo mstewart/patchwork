@@ -13,7 +13,7 @@ DEFAULT_RUBY_VERSION='1.9.2'
 
 def _install_ruby_system_dependencies():
     if info.distro_family() == 'redhat':
-        packages.rpm.install(*RVM_RPM_DEPENDENCIES)
+        packages.rpm.install(RVM_RPM_DEPENDENCIES)
         try:
             # iconv-devel does not exist on some systems, but its contents
             # are usually lumped in with other packages, so this is not

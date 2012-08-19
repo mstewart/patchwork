@@ -37,7 +37,7 @@ def install(packages, use_epel=False, **kwargs):
     with settings(hide('warnings'), warn_only=True):
         if sudo("yum install --assumeyes --quiet %(epel_option)s %(package_list)s" % locals()).failed:
             raise PackageInstallationError('yum failed to install packages: %s' % package_list)
-    if not is_installed(*packages):
+    if not is_installed(packages):
         raise PackageInstallationError("yum reported success in installing " +
                 "the following packages, but they are not all present: " +
                 ",".join(packages))
